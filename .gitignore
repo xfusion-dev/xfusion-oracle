@@ -1,0 +1,23 @@
+# IDE and documentation
+.ide/
+.claude/
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+Cargo.lock
+
+# Debug
+*.dSYM/
+
+# macOS
+.DS_Store
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

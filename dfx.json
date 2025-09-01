@@ -1,0 +1,15 @@
+{
+  "canisters": {
+    "oracle": {
+      "type": "rust",
+      "package": "xfusion-oracle-canister",
+      "candid": "src/oracle.did"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "version": 1
+}
