@@ -33,3 +33,25 @@ fn get_all_symbols() -> Vec<Symbol> {
         storage.prices.keys().cloned().collect()
     })
 }
+
+#[update]
+fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
+    with_storage_mut(|storage| {
+        let current_time = ic_cdk::api::time();
+
+        for update in updates {
+            if update.price.value == 0 {
+                continue;
+            }
+
+            if update.price.timestamp > current_time + 60_000_000_000 {
+                continue;
+            }
+
+            storage.prices.insert(update.symbol, update.price);
+        }
+
+        storage.version += 1;
+        storage.version
+    })
+}
