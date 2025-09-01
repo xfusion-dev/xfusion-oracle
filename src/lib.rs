@@ -8,7 +8,11 @@ use state::{with_storage, with_storage_mut};
 
 #[init]
 fn init() {
-    ic_cdk::println!("Oracle canister initialized");
+    let deployer = ic_cdk::caller();
+    with_storage_mut(|storage| {
+        storage.managers.insert(deployer);
+    });
+    ic_cdk::println!("Oracle canister initialized with deployer as manager");
 }
 
 #[query]
@@ -36,7 +40,13 @@ fn get_all_symbols() -> Vec<Symbol> {
 
 #[update]
 fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
+    let caller = ic_cdk::caller();
+
     with_storage_mut(|storage| {
+        if !storage.allowed_updaters.is_empty() && !storage.allowed_updaters.contains(&caller) {
+            ic_cdk::trap("Unauthorized");
+        }
+
         let current_time = ic_cdk::api::time();
 
         for update in updates {
@@ -53,5 +63,29 @@ fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
 
         storage.version += 1;
         storage.version
+    })
+}
+
+#[update]
+fn set_allowed_updaters(principals: Vec<candid::Principal>) {
+    let caller = ic_cdk::caller();
+
+    with_storage_mut(|storage| {
+        if !storage.managers.contains(&caller) {
+            ic_cdk::trap("Unauthorized: only managers can modify updaters");
+        }
+        storage.allowed_updaters = principals.into_iter().collect();
+    })
+}
+
+#[update]
+fn set_managers(principals: Vec<candid::Principal>) {
+    let caller = ic_cdk::caller();
+
+    with_storage_mut(|storage| {
+        if !storage.managers.contains(&caller) {
+            ic_cdk::trap("Unauthorized: only managers can modify managers");
+        }
+        storage.managers = principals.into_iter().collect();
     })
 }

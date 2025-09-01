@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::cell::RefCell;
+use candid::Principal;
 use crate::types::{Symbol, Price};
 
 thread_local! {
@@ -9,6 +10,8 @@ thread_local! {
 pub struct PriceStorage {
     pub prices: HashMap<Symbol, Price>,
     pub version: u64,
+    pub allowed_updaters: HashSet<Principal>,
+    pub managers: HashSet<Principal>,
 }
 
 impl PriceStorage {
@@ -16,6 +19,8 @@ impl PriceStorage {
         Self {
             prices: HashMap::new(),
             version: 0,
+            allowed_updaters: HashSet::new(),
+            managers: HashSet::new(),
         }
     }
 }
