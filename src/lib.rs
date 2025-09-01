@@ -2,6 +2,7 @@ use ic_cdk_macros::*;
 
 mod types;
 mod state;
+mod ring_buffer;
 
 use types::{Symbol, Price, Bar, Policy, PriceUpdate};
 use state::{with_storage, with_storage_mut};
@@ -58,7 +59,7 @@ fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
                 continue;
             }
 
-            storage.prices.insert(update.symbol, update.price);
+            storage.add_price_with_history(update.symbol, update.price);
         }
 
         storage.version += 1;
