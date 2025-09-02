@@ -1,13 +1,16 @@
 use ic_cdk_macros::*;
+use serde_bytes::ByteBuf;
 
 mod types;
 mod state;
 mod ring_buffer;
 mod ohlc;
 mod archive;
+mod merkle;
 
 use types::{Symbol, Price, Bar, Policy, PriceUpdate};
 use state::{with_storage, with_storage_mut};
+use merkle::create_certified_snapshot;
 
 #[init]
 fn init() {
@@ -49,6 +52,19 @@ fn get_range(symbol: Symbol, start: u64, end: u64, resolution: String) -> Vec<Ba
         } else {
             vec![]
         }
+    })
+}
+
+#[query]
+fn get_snapshot_cert() -> (Vec<(Symbol, Price)>, ByteBuf) {
+    with_storage(|storage| {
+        let snapshot: Vec<(Symbol, Price)> = storage
+            .prices
+            .iter()
+            .map(|(symbol, price)| (symbol.clone(), price.clone()))
+            .collect();
+
+        create_certified_snapshot(snapshot)
     })
 }
 
