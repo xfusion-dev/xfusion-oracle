@@ -3,6 +3,7 @@ use ic_cdk_macros::*;
 mod types;
 mod state;
 mod ring_buffer;
+mod ohlc;
 
 use types::{Symbol, Price, Bar, Policy, PriceUpdate};
 use state::{with_storage, with_storage_mut};
