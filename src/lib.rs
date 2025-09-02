@@ -78,13 +78,44 @@ fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
         }
 
         let current_time = ic_cdk::api::time();
+        let max_future_time = current_time + 60_000_000_000; // 1 minute in nanoseconds
+        let min_past_time = current_time - 300_000_000_000; // 5 minutes in nanoseconds
 
         for update in updates {
+            // Validate price value
             if update.price.value == 0 {
                 continue;
             }
 
-            if update.price.timestamp > current_time + 60_000_000_000 {
+            // Validate price is not absurdly high or low
+            if update.price.value > 1_000_000_000_000 {
+                continue;
+            }
+
+            // Validate timestamp is not too far in future
+            if update.price.timestamp > max_future_time {
+                continue;
+            }
+
+            // Validate timestamp is not too stale
+            if update.price.timestamp < min_past_time {
+                continue;
+            }
+
+            // Validate symbol is allowed (if symbol registry is used)
+            if !storage.symbols.is_empty() && !storage.symbols.contains(&update.symbol) {
+                continue;
+            }
+
+            // Validate confidence if provided
+            if let Some(conf) = update.price.confidence {
+                if conf > update.price.value {
+                    continue;
+                }
+            }
+
+            // Validate source is not empty
+            if update.price.source.is_empty() {
                 continue;
             }
 
