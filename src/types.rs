@@ -32,3 +32,12 @@ pub struct PriceUpdate {
     pub symbol: Symbol,
     pub price: Price,
 }
+
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
+pub struct OracleMetrics {
+    pub total_symbols: u64,
+    pub total_updates: u64,
+    pub last_update_time: u64,
+    pub canister_cycles: u64,
+    pub version: u64,
+}

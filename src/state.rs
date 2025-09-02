@@ -18,6 +18,8 @@ pub struct PriceStorage {
     pub symbols: HashSet<Symbol>,
     pub policy: Policy,
     pub version: u64,
+    pub total_updates: u64,
+    pub last_update_time: u64,
     pub allowed_updaters: HashSet<Principal>,
     pub managers: HashSet<Principal>,
 }
@@ -34,6 +36,8 @@ impl PriceStorage {
                 retain_history: 30,
             },
             version: 0,
+            total_updates: 0,
+            last_update_time: 0,
             allowed_updaters: HashSet::new(),
             managers: HashSet::new(),
         }

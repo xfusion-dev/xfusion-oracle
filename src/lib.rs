@@ -8,7 +8,7 @@ mod ohlc;
 mod archive;
 mod merkle;
 
-use types::{Symbol, Price, Bar, Policy, PriceUpdate};
+use types::{Symbol, Price, Bar, Policy, PriceUpdate, OracleMetrics};
 use state::{with_storage, with_storage_mut};
 use merkle::create_certified_snapshot;
 
@@ -120,6 +120,8 @@ fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
             }
 
             storage.add_price_with_history(update.symbol, update.price);
+            storage.total_updates += 1;
+            storage.last_update_time = current_time;
         }
 
         storage.version += 1;
@@ -191,5 +193,18 @@ fn set_policy(new_policy: Policy) {
             ic_cdk::trap("Unauthorized: only managers can modify policy");
         }
         storage.policy = new_policy;
+    })
+}
+
+#[query]
+fn get_metrics() -> OracleMetrics {
+    with_storage(|storage| {
+        OracleMetrics {
+            total_symbols: storage.prices.len() as u64,
+            total_updates: storage.total_updates,
+            last_update_time: storage.last_update_time,
+            canister_cycles: ic_cdk::api::canister_balance(),
+            version: storage.version,
+        }
     })
 }
