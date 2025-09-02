@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use candid::Principal;
 use crate::types::{Symbol, Price};
 use crate::ring_buffer::RingBuffer;
+use crate::archive::Archive;
 
 const HISTORY_CAPACITY: usize = 2880; // 30 days * 24 hours * 4 samples/hour
 
@@ -13,6 +14,7 @@ thread_local! {
 pub struct PriceStorage {
     pub prices: HashMap<Symbol, Price>,
     pub history: HashMap<Symbol, RingBuffer<Price>>,
+    pub archives: HashMap<Symbol, Archive>,
     pub version: u64,
     pub allowed_updaters: HashSet<Principal>,
     pub managers: HashSet<Principal>,
@@ -23,6 +25,7 @@ impl PriceStorage {
         Self {
             prices: HashMap::new(),
             history: HashMap::new(),
+            archives: HashMap::new(),
             version: 0,
             allowed_updaters: HashSet::new(),
             managers: HashSet::new(),
