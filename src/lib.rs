@@ -41,6 +41,17 @@ fn get_all_symbols() -> Vec<Symbol> {
     })
 }
 
+#[query]
+fn get_range(symbol: Symbol, start: u64, end: u64, resolution: String) -> Vec<Bar> {
+    with_storage(|storage| {
+        if let Some(archive) = storage.archives.get(&symbol) {
+            archive.get_bars(&resolution, start, end)
+        } else {
+            vec![]
+        }
+    })
+}
+
 #[update]
 fn push_prices(updates: Vec<PriceUpdate>) -> u64 {
     let caller = ic_cdk::caller();
