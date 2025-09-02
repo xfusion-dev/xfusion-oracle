@@ -119,3 +119,46 @@ fn set_managers(principals: Vec<candid::Principal>) {
         storage.managers = principals.into_iter().collect();
     })
 }
+
+#[update]
+fn upsert_symbols(symbols: Vec<Symbol>) {
+    let caller = ic_cdk::caller();
+
+    with_storage_mut(|storage| {
+        if !storage.managers.contains(&caller) {
+            ic_cdk::trap("Unauthorized: only managers can modify symbols");
+        }
+        for symbol in symbols {
+            storage.symbols.insert(symbol);
+        }
+    })
+}
+
+#[update]
+fn remove_symbols(symbols: Vec<Symbol>) {
+    let caller = ic_cdk::caller();
+
+    with_storage_mut(|storage| {
+        if !storage.managers.contains(&caller) {
+            ic_cdk::trap("Unauthorized: only managers can modify symbols");
+        }
+        for symbol in symbols {
+            storage.symbols.remove(&symbol);
+            storage.prices.remove(&symbol);
+            storage.history.remove(&symbol);
+            storage.archives.remove(&symbol);
+        }
+    })
+}
+
+#[update]
+fn set_policy(new_policy: Policy) {
+    let caller = ic_cdk::caller();
+
+    with_storage_mut(|storage| {
+        if !storage.managers.contains(&caller) {
+            ic_cdk::trap("Unauthorized: only managers can modify policy");
+        }
+        storage.policy = new_policy;
+    })
+}

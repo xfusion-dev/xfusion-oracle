@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::cell::RefCell;
 use candid::Principal;
-use crate::types::{Symbol, Price};
+use crate::types::{Symbol, Price, Policy};
 use crate::ring_buffer::RingBuffer;
 use crate::archive::Archive;
 
@@ -15,6 +15,8 @@ pub struct PriceStorage {
     pub prices: HashMap<Symbol, Price>,
     pub history: HashMap<Symbol, RingBuffer<Price>>,
     pub archives: HashMap<Symbol, Archive>,
+    pub symbols: HashSet<Symbol>,
+    pub policy: Policy,
     pub version: u64,
     pub allowed_updaters: HashSet<Principal>,
     pub managers: HashSet<Principal>,
@@ -26,6 +28,11 @@ impl PriceStorage {
             prices: HashMap::new(),
             history: HashMap::new(),
             archives: HashMap::new(),
+            symbols: HashSet::new(),
+            policy: Policy {
+                aggregation: "LAST".to_string(),
+                retain_history: 30,
+            },
             version: 0,
             allowed_updaters: HashSet::new(),
             managers: HashSet::new(),
