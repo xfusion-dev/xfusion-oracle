@@ -7,33 +7,36 @@ A high-performance, decentralized price oracle running on the Internet Computer 
 ### Core Functionality
 - **Real-time Price Updates**: Sub-second latency for price queries
 - **Multi-Asset Support**: Handles ~30 crypto assets and equity symbols
+- **Persistent Storage**: Uses IC stable structures for data persistence across upgrades
 - **Historical Data**: Tiered archive system with configurable retention
 - **Certified Queries**: Merkle tree-based data certification for trustless verification
 - **Role-Based Access**: Separate manager and updater roles for security
 
 ### Technical Highlights
-- **High Throughput**: Batch price updates every 15 seconds
+- **Stable Memory**: Price data persists across canister upgrades
+- **High Throughput**: Batch price updates (up to 1000 per call)
 - **Memory Efficient**: Ring buffer for recent data, segmented archives for historical
-- **Data Validation**: Comprehensive input validation and staleness checks
-- **OHLC Aggregation**: Automatic candlestick data generation at multiple resolutions
+- **Data Validation**: Comprehensive input validation with configurable limits
+- **Real-time OHLC**: Continuous aggregation at 1m, 5m, and 1h resolutions
 - **Operational Metrics**: Built-in monitoring and health endpoints
 
 ## Architecture
 
 ```
-┌─────────────────┐     ┌──────────────┐
-│  Updater App    │────▶│    Oracle    │
-│  (Off-chain)    │     │   Canister   │
-└─────────────────┘     └──────────────┘
-                               │
-                               ▼
-                    ┌────────────────────┐
-                    │   Storage Tiers    │
-                    ├────────────────────┤
-                    │ Hot:  Ring Buffer  │
-                    │ Warm: 1m OHLC      │
-                    │ Cold: 5m/1h OHLC   │
-                    └────────────────────┘
+┌─────────────────┐     ┌──────────────────────┐
+│  Updater App    │────▶│   Oracle Canister    │
+│  (Off-chain)    │     ├──────────────────────┤
+└─────────────────┘     │   Stable Memory      │
+                        │  ├─ Prices (BTree)   │
+                        │  ├─ Symbols Registry │
+                        │  ├─ Managers List    │
+                        │  └─ Updaters List    │
+                        ├──────────────────────┤
+                        │   Heap Memory        │
+                        │  ├─ History (Ring)   │
+                        │  ├─ Archives (OHLC)  │
+                        │  └─ Active Builders  │
+                        └──────────────────────┘
 ```
 
 ## API Reference
@@ -55,6 +58,15 @@ Returns certified snapshot of all current prices with Merkle root.
 #### `get_range(symbol: Symbol, start: u64, end: u64, resolution: String) -> Vec<Bar>`
 Retrieves historical OHLC data for specified time range and resolution.
 
+#### `get_price_history(symbol: Symbol) -> Vec<Price>`
+Returns recent price history from the ring buffer (up to 2880 samples).
+
+#### `get_price_history_count(symbol: Symbol) -> u64`
+Returns the number of historical prices available for a symbol.
+
+#### `get_available_resolutions() -> Vec<String>`
+Returns supported OHLC resolutions: ["1m", "5m", "1h"].
+
 #### `get_metrics() -> OracleMetrics`
 Returns operational metrics including update counts, cycles balance, and version.
 
@@ -62,6 +74,10 @@ Returns operational metrics including update counts, cycles balance, and version
 
 #### `push_prices(updates: Vec<PriceUpdate>) -> u64`
 Updates prices for multiple symbols (requires updater authorization).
+- Maximum 1000 updates per call
+- Symbol names limited to 50 characters
+- Source names limited to 100 characters
+- Validates timestamps within ±5 minutes
 
 ### Admin Methods
 
@@ -159,8 +175,11 @@ dfx canister --network ic call oracle set_managers '(vec {principal "your-princi
 
 ### Data Validation
 - Timestamps must be within ±5 minutes of current time
-- Price values must be non-zero and within reasonable bounds
+- Price values must be non-zero and < 10^15
 - Confidence intervals cannot exceed price values
+- Symbol names limited to 50 characters
+- Source names limited to 100 characters
+- Maximum 1000 price updates per batch
 - Symbol must be in allowed list (if registry enabled)
 
 ### Best Practices
@@ -173,20 +192,25 @@ dfx canister --network ic call oracle set_managers '(vec {principal "your-princi
 ## Performance
 
 ### Capacity
-- **Symbols**: ~50 concurrent assets
-- **History**: 30 days at 15-second intervals (per symbol)
+- **Symbols**: Unlimited (uses stable BTree storage)
+- **History**: 2880 samples per symbol (30 days at 15-second intervals)
 - **Archives**: 1+ year of 1-minute OHLC data
+- **Batch Size**: Up to 1000 price updates per call
+
+### Storage Architecture
+- **Stable Memory**: Prices, symbols, managers, updaters (persists across upgrades)
+- **Heap Memory**: History buffer, OHLC archives, active aggregators (volatile)
 
 ### Costs (Estimated)
-- **Storage**: $17-64/year depending on subnet
-- **Updates**: ~$2-8/month for 15-second updates
+- **Storage**: ~$17-64/year for stable memory
+- **Updates**: ~$2-8/month for 15-second batch updates
 - **Queries**: ~$16/month per 1M queries
 
 ### Optimization Tips
-- Batch price updates to minimize cycles
-- Use `get_prices` for multiple symbols
+- Batch price updates to minimize cycles (up to 1000 per call)
+- Use `get_prices` for multiple symbols in one query
 - Cache frequently accessed data client-side
-- Configure appropriate retention policies
+- Monitor metrics to track storage and update patterns
 
 ## Development
 

@@ -21,25 +21,13 @@ type Policy = record {
   retain_history: nat32;
 };
 
-type OracleMetrics = record {
-  total_symbols: nat64;
-  total_updates: nat64;
-  last_update_time: nat64;
-  canister_cycles: nat64;
-  version: nat64;
-};
-
 service : {
   get_price: (Symbol) -> (opt Price) query;
   get_prices: (vec Symbol) -> (vec opt Price) query;
   get_all_symbols: () -> (vec Symbol) query;
   get_snapshot_cert: () -> (vec record { Symbol; Price }, blob) query;
-  get_metrics: () -> (OracleMetrics) query;
 
   get_range: (Symbol, nat64, nat64, text) -> (vec Bar) query;
-  get_price_history: (Symbol) -> (vec Price) query;
-  get_price_history_count: (Symbol) -> (nat64) query;
-  get_available_resolutions: () -> (vec text) query;
 
   push_prices: (vec record { Symbol; Price }) -> (nat64);
 
@@ -47,5 +35,4 @@ service : {
   remove_symbols: (vec Symbol) -> ();
   set_policy: (Policy) -> ();
   set_allowed_updaters: (vec principal) -> ();
-  set_managers: (vec principal) -> ();
 }

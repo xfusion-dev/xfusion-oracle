@@ -1,4 +1,4 @@
-use candid::{CandidType, Deserialize, Principal};
+use candid::{CandidType, Deserialize};
 use serde::Serialize;
 
 pub type Symbol = String;

@@ -37,9 +37,6 @@ service : {
   get_metrics: () -> (OracleMetrics) query;
 
   get_range: (Symbol, nat64, nat64, text) -> (vec Bar) query;
-  get_price_history: (Symbol) -> (vec Price) query;
-  get_price_history_count: (Symbol) -> (nat64) query;
-  get_available_resolutions: () -> (vec text) query;
 
   push_prices: (vec record { Symbol; Price }) -> (nat64);
 

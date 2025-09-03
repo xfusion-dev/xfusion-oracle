@@ -33,17 +33,13 @@ impl<T: Clone> RingBuffer<T> {
             0
         };
 
-        (0..self.size).map(move |i| {
+        (0..self.size).filter_map(move |i| {
             let idx = (start + i) % self.capacity;
-            self.buffer[idx].as_ref().unwrap()
+            self.buffer[idx].as_ref()
         })
     }
 
     pub fn len(&self) -> usize {
         self.size
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.size == 0
     }
 }

@@ -1,5 +1,6 @@
 use crate::types::{Price, Bar};
 
+#[derive(Clone, Debug)]
 pub struct OHLCBuilder {
     open: Option<u64>,
     high: u64,
@@ -17,6 +18,10 @@ impl OHLCBuilder {
             close: 0,
             start_time,
         }
+    }
+
+    pub fn get_start_time(&self) -> u64 {
+        self.start_time
     }
 
     pub fn add_price(&mut self, price: &Price) {
@@ -39,16 +44,8 @@ impl OHLCBuilder {
             volume: None,
         })
     }
-}
 
-pub fn aggregate_prices_to_bar(prices: &[Price], period_start: u64) -> Option<Bar> {
-    if prices.is_empty() {
-        return None;
+    pub fn build_clone(&self) -> Option<Bar> {
+        self.clone().build()
     }
-
-    let mut builder = OHLCBuilder::new(period_start);
-    for price in prices {
-        builder.add_price(price);
-    }
-    builder.build()
 }

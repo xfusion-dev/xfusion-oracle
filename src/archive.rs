@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::types::{Symbol, Bar};
+use crate::types::Bar;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ArchiveSegment {
