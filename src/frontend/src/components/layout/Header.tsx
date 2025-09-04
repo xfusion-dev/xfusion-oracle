@@ -58,7 +58,10 @@ export default function Header({ showHero = false }: HeaderProps) {
               <div className="nav-logo-icon">
                 <span className="text-lg font-bold">X</span>
               </div>
-              <span>Fusion</span>
+              <div className="flex flex-col -space-y-1">
+                <span>Fusion</span>
+                <span className="text-unique uppercase" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>Oracles</span>
+              </div>
             </Link>
           </div>
         
