@@ -21,6 +21,7 @@ export const idlFactory = ({ IDL }) => {
     'volume' : IDL.Opt(IDL.Nat64),
     'timestamp' : IDL.Nat64,
   });
+  const PriceUpdate = IDL.Record({ 'price' : Price, 'symbol' : Symbol });
   const Policy = IDL.Record({
     'aggregation' : IDL.Text,
     'retain_history' : IDL.Nat32,
@@ -28,6 +29,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'get_all_symbols' : IDL.Func([], [IDL.Vec(Symbol)], ['query']),
     'get_available_resolutions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    'get_managers' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'get_metrics' : IDL.Func([], [OracleMetrics], ['query']),
     'get_price' : IDL.Func([Symbol], [IDL.Opt(Price)], ['query']),
     'get_price_history' : IDL.Func([Symbol], [IDL.Vec(Price)], ['query']),
@@ -47,11 +49,8 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(Symbol, Price)), IDL.Vec(IDL.Nat8)],
         ['query'],
       ),
-    'push_prices' : IDL.Func(
-        [IDL.Vec(IDL.Tuple(Symbol, Price))],
-        [IDL.Nat64],
-        [],
-      ),
+    'get_updaters' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    'push_prices' : IDL.Func([IDL.Vec(PriceUpdate)], [IDL.Nat64], []),
     'remove_symbols' : IDL.Func([IDL.Vec(Symbol)], [], []),
     'set_allowed_updaters' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
     'set_managers' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),

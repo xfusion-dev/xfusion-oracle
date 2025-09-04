@@ -221,3 +221,17 @@ fn get_metrics() -> OracleMetrics {
         }
     })
 }
+
+#[query]
+fn get_managers() -> Vec<String> {
+    with_storage(|storage| {
+        storage.get_all_managers()
+    })
+}
+
+#[query]
+fn get_updaters() -> Vec<String> {
+    with_storage(|storage| {
+        storage.get_all_updaters()
+    })
+}

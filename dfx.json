@@ -3,7 +3,11 @@
     "oracle": {
       "type": "rust",
       "package": "xfusion-oracle-canister",
-      "candid": "src/oracle.did"
+      "candid": "src/backend/oracle.did"
+    },
+    "frontend": {
+      "type": "assets",
+      "source": ["src/frontend/dist/"]
     }
   },
   "defaults": {

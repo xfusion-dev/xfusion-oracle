@@ -148,8 +148,8 @@ impl PriceStorage {
     }
 
     pub fn get_all_symbols(&self) -> Vec<Symbol> {
-        PRICES.with(|prices| {
-            prices.borrow().iter().map(|(k, _)| k).collect()
+        SYMBOLS.with(|symbols| {
+            symbols.borrow().iter().map(|(k, _)| k).collect()
         })
     }
 
@@ -255,6 +255,18 @@ impl PriceStorage {
                 updaters.borrow_mut().insert(principal.to_text(), ());
             }
         });
+    }
+
+    pub fn get_all_managers(&self) -> Vec<String> {
+        MANAGERS.with(|managers| {
+            managers.borrow().iter().map(|(k, _)| k).collect()
+        })
+    }
+
+    pub fn get_all_updaters(&self) -> Vec<String> {
+        UPDATERS.with(|updaters| {
+            updaters.borrow().iter().map(|(k, _)| k).collect()
+        })
     }
 }
 

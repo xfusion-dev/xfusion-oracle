@@ -21,6 +21,11 @@ type Policy = record {
   retain_history: nat32;
 };
 
+type PriceUpdate = record {
+  symbol: Symbol;
+  price: Price;
+};
+
 type OracleMetrics = record {
   total_symbols: nat64;
   total_updates: nat64;
@@ -40,8 +45,10 @@ service : {
   get_price_history: (Symbol) -> (vec Price) query;
   get_price_history_count: (Symbol) -> (nat64) query;
   get_available_resolutions: () -> (vec text) query;
+  get_managers: () -> (vec text) query;
+  get_updaters: () -> (vec text) query;
 
-  push_prices: (vec record { Symbol; Price }) -> (nat64);
+  push_prices: (vec PriceUpdate) -> (nat64);
 
   upsert_symbols: (vec Symbol) -> ();
   remove_symbols: (vec Symbol) -> ();

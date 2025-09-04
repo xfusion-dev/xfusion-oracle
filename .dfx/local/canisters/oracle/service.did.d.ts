@@ -24,10 +24,12 @@ export interface Price {
   'timestamp' : bigint,
   'confidence' : [] | [bigint],
 }
+export interface PriceUpdate { 'price' : Price, 'symbol' : Symbol }
 export type Symbol = string;
 export interface _SERVICE {
   'get_all_symbols' : ActorMethod<[], Array<Symbol>>,
   'get_available_resolutions' : ActorMethod<[], Array<string>>,
+  'get_managers' : ActorMethod<[], Array<string>>,
   'get_metrics' : ActorMethod<[], OracleMetrics>,
   'get_price' : ActorMethod<[Symbol], [] | [Price]>,
   'get_price_history' : ActorMethod<[Symbol], Array<Price>>,
@@ -38,7 +40,8 @@ export interface _SERVICE {
     [],
     [Array<[Symbol, Price]>, Uint8Array | number[]]
   >,
-  'push_prices' : ActorMethod<[Array<[Symbol, Price]>], bigint>,
+  'get_updaters' : ActorMethod<[], Array<string>>,
+  'push_prices' : ActorMethod<[Array<PriceUpdate>], bigint>,
   'remove_symbols' : ActorMethod<[Array<Symbol>], undefined>,
   'set_allowed_updaters' : ActorMethod<[Array<Principal>], undefined>,
   'set_managers' : ActorMethod<[Array<Principal>], undefined>,
