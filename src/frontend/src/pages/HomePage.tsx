@@ -1,13 +1,4 @@
-// Mock data for price feeds
-const mockPriceFeeds = [
-  { symbol: 'BTC', pair: 'BTC/USD', price: '67,533.42', change: '+2.3%', isPositive: true, sparkline: [65000, 66200, 67000, 66800, 67533] },
-  { symbol: 'ETH', pair: 'ETH/USD', price: '2,847.91', change: '+1.8%', isPositive: true, sparkline: [2800, 2820, 2850, 2840, 2847] },
-  { symbol: 'SOL', pair: 'SOL/USD', price: '142.67', change: '-0.5%', isPositive: false, sparkline: [145, 144, 143, 142, 142.67] },
-  { symbol: 'AVAX', pair: 'AVAX/USD', price: '28.43', change: '+4.2%', isPositive: true, sparkline: [27, 27.5, 28, 28.2, 28.43] },
-  { symbol: 'MATIC', pair: 'MATIC/USD', price: '0.8921', change: '+1.1%', isPositive: true, sparkline: [0.88, 0.885, 0.89, 0.891, 0.8921] },
-  { symbol: 'ADA', pair: 'ADA/USD', price: '0.3456', change: '-2.1%', isPositive: false, sparkline: [0.35, 0.348, 0.346, 0.345, 0.3456] },
-  { symbol: 'DOT', pair: 'DOT/USD', price: '4.23', change: '+0.8%', isPositive: true, sparkline: [4.18, 4.19, 4.21, 4.22, 4.23] },
-];
+import { featuredAssets, allAssets } from '../data/mockAssets';
 
 // Simple sparkline component
 function Sparkline({ data, isPositive }: { data: number[]; isPositive: boolean }) {
@@ -161,7 +152,7 @@ export default function HomePage() {
           </div>
 
           {/* Sexy Price Table */}
-          <div className="bg-elevated/50 backdrop-blur-xl border border-primary/20 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="bg-elevated/50 backdrop-blur-xl border border-primary/20 overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -172,7 +163,7 @@ export default function HomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockPriceFeeds.map((feed, index) => (
+                  {featuredAssets.map((feed, index) => (
                     <tr 
                       key={feed.symbol}
                       className="border-b border-primary/10 hover:bg-white transition-all duration-300 group"
@@ -216,9 +207,12 @@ export default function HomePage() {
 
           {/* Bottom CTA */}
           <div className="text-center mt-16">
-            <button className="border border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]">
-              View All 30+ Price Feeds →
-            </button>
+            <a 
+              href="/assets" 
+              className="inline-block border border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
+            >
+              View All {allAssets.length} Price Feeds →
+            </a>
           </div>
         </div>
       </section>
