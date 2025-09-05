@@ -1,4 +1,12 @@
-import { featuredAssets, allAssets } from '../data/mockAssets';
+import { useFeaturedAssets, useOracleMetrics } from '../hooks/useOracleData';
+import { formatPrice } from '../services/oracle';
+import { useTimeAgo } from '../hooks/useTimeAgo';
+
+// Time ago component that updates every second
+function TimeAgoDisplay({ timestamp }: { timestamp: bigint | null }) {
+  const timeAgo = useTimeAgo(timestamp);
+  return <span>{timeAgo}</span>;
+}
 
 // Simple sparkline component
 function Sparkline({ data, isPositive }: { data: number[]; isPositive: boolean }) {
@@ -60,6 +68,25 @@ function PriceFeedCard({ symbol, pair, price, change, isPositive, sparkline }: {
 }
 
 export default function HomePage() {
+  const { data: featuredAssets, isLoading, error } = useFeaturedAssets();
+  const { data: metrics } = useOracleMetrics();
+
+  if (isLoading) {
+    return (
+      <div className="px-6 py-24 bg-void min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Loading oracle data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="px-6 py-24 bg-void min-h-screen flex items-center justify-center">
+        <div className="text-error-500 text-xl">Error loading oracle data</div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Hero Section - Refined and alive */}
@@ -114,7 +141,7 @@ export default function HomePage() {
           {/* Clean live stats */}
           <div className="grid grid-cols-3 gap-12 max-w-lg mx-auto mb-16">
             <div className="text-center">
-              <div className="text-4xl font-bold text-white mb-2">30+</div>
+              <div className="text-4xl font-bold text-white mb-2">{metrics ? Number(metrics.total_symbols) : '...'}</div>
               <div className="text-unique text-sm uppercase tracking-wider">Price Feeds</div>
             </div>
             <div className="text-center">
@@ -154,7 +181,12 @@ export default function HomePage() {
           {/* Sexy Price Table */}
           <div className="bg-elevated/50 backdrop-blur-xl border border-primary/20 overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-fixed">
+                <colgroup>
+                  <col className="w-1/3" />
+                  <col className="w-1/3" />
+                  <col className="w-1/3" />
+                </colgroup>
                 <thead>
                   <tr className="border-b border-primary/20 bg-primary/5">
                     <th className="text-left py-4 px-6 text-unique font-medium text-sm uppercase tracking-wider">Asset</th>
@@ -163,9 +195,9 @@ export default function HomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {featuredAssets.map((feed, index) => (
+                  {featuredAssets?.map((asset, index) => (
                     <tr 
-                      key={feed.symbol}
+                      key={asset.symbol}
                       className="border-b border-primary/10 hover:bg-white transition-all duration-300 group"
                       style={{
                         animationDelay: `${index * 50}ms`,
@@ -173,29 +205,30 @@ export default function HomePage() {
                     >
                       {/* Asset */}
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                            <span className="text-white font-bold text-sm">{feed.symbol[0]}</span>
-                          </div>
-                          <div>
-                            <div className="text-white group-hover:text-black font-semibold transition-colors duration-300">{feed.symbol}</div>
-                            <div className="text-unique group-hover:text-gray-600 text-sm transition-colors duration-300">{feed.pair}</div>
-                          </div>
+                        <div>
+                          <div className="text-white group-hover:text-black font-semibold transition-colors duration-300">{asset.symbol}</div>
+                          <div className="text-unique group-hover:text-gray-600 text-sm transition-colors duration-300">{asset.pair}</div>
                         </div>
                       </td>
                       
                       {/* Price */}
                       <td className="py-4 px-6 text-right">
                         <div className="text-white group-hover:text-black text-xl font-bold font-mono transition-colors duration-300">
-                          ${feed.price}
+                          {asset.price ? formatPrice(asset.price.value) : 'No data'}
                         </div>
                       </td>
                       
                       {/* Last Update */}
                       <td className="py-4 px-6 text-right">
                         <div className="text-unique group-hover:text-gray-600 text-sm transition-colors duration-300">
-                          <span className="inline-block w-2 h-2 bg-success-500 rounded-full mr-2 animate-pulse"></span>
-                          Live
+                          {asset.price ? (
+                            <>
+                              <span className="inline-block w-2 h-2 bg-success-500 mr-2 animate-pulse"></span>
+                              <TimeAgoDisplay timestamp={asset.price.timestamp} />
+                            </>
+                          ) : (
+                            <span className="text-gray-500">No data</span>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -211,7 +244,7 @@ export default function HomePage() {
               href="/assets" 
               className="inline-block border border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
             >
-              View All {allAssets.length} Price Feeds →
+              View All {metrics ? Number(metrics.total_symbols) : '...'} Price Feeds →
             </a>
           </div>
         </div>
