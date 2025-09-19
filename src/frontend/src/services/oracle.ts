@@ -141,5 +141,7 @@ export const formatConfidence = (confidence: [] | [bigint]): string => {
   return `±$${conf.toFixed(2)}`;
 };
 
-// Create oracle client instance
-export const oracleClient = new OracleClient('uxrrr-q7777-77774-qaaaq-cai');
+// Create oracle client instance - use mainnet canister ID
+export const oracleClient = new OracleClient('zutfo-jqaaa-aaaao-a4puq-cai', {
+  host: 'https://ic0.app'
+});
