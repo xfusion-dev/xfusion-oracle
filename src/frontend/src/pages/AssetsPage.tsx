@@ -1,8 +1,8 @@
 import { useOraclePrices, useOracleMetrics } from '../hooks/useOracleData';
 import { formatPrice } from '../services/oracle';
 import { useTimeAgo } from '../hooks/useTimeAgo';
+import AssetWall from '../components/asset-wall/AssetWall';
 
-// Time ago component that updates every second
 function TimeAgoDisplay({ timestamp }: { timestamp: bigint | null }) {
   const timeAgo = useTimeAgo(timestamp);
   return <span>{timeAgo}</span>;
@@ -30,7 +30,9 @@ export default function AssetsPage() {
   return (
     <div className="px-6 py-24 bg-void min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
+        <div className="mb-16">
+          <AssetWall />
+        </div>
         <div className="mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
             Assets
