@@ -68,7 +68,7 @@ export default function Header({ showHero = false }: HeaderProps) {
           {/* Desktop Menu */}
           <div className="nav-menu hidden md:flex">
             <a href="/assets">Assets</a>
-            <a href="/docs" className="flex items-center gap-1">
+            <a href="https://docs.xfusion.finance/oracle/getting-started" target="_blank" className="flex items-center gap-1">
               Docs
               <ExternalLink className="w-4 h-4" />
             </a>
