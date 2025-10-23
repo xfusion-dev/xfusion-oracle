@@ -33,15 +33,6 @@ export default function AssetsPage() {
         <div className="mb-16">
           <AssetWall />
         </div>
-        <div className="mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-            Assets
-          </h1>
-          <p className="text-unique text-lg max-w-2xl">
-            Complete list of all supported price feeds with real-time data and source information.
-          </p>
-        </div>
-
       </div>
     </div>
   );
