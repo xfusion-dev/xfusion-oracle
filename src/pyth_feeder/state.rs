@@ -9,6 +9,7 @@ type Memory = VirtualMemory<DefaultMemoryImpl>;
 const CONFIG_MEMORY_ID: MemoryId = MemoryId::new(0);
 const FEEDS_MEMORY_ID: MemoryId = MemoryId::new(1);
 const METRICS_MEMORY_ID: MemoryId = MemoryId::new(2);
+const MANAGER_MEMORY_ID: MemoryId = MemoryId::new(3);
 
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
@@ -43,6 +44,13 @@ thread_local! {
                 timer_running: false,
             }
         ).expect("Failed to initialize METRICS")
+    );
+
+    static MANAGER: RefCell<StableCell<Principal, Memory>> = RefCell::new(
+        StableCell::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MANAGER_MEMORY_ID)),
+            Principal::anonymous()
+        ).expect("Failed to initialize MANAGER")
     );
 }
 
@@ -102,4 +110,19 @@ where
         updater(&mut metrics);
         m.borrow_mut().set(metrics).expect("Failed to update metrics");
     });
+}
+
+pub fn get_manager() -> Principal {
+    MANAGER.with(|m| m.borrow().get().clone())
+}
+
+pub fn set_manager(manager: Principal) {
+    MANAGER.with(|m| {
+        m.borrow_mut().set(manager).expect("Failed to set manager");
+    });
+}
+
+pub fn is_manager(principal: &Principal) -> bool {
+    let manager = get_manager();
+    manager == *principal
 }

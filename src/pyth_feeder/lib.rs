@@ -110,6 +110,13 @@ fn init(args: InitArgs) {
 
 #[post_upgrade]
 fn post_upgrade() {
+    let manager = crate::state::get_manager();
+    if manager == Principal::anonymous() {
+        let caller = ic_cdk::caller();
+        crate::state::set_manager(caller);
+        ic_cdk::println!("Manager set to: {}", caller);
+    }
+
     let config = get_config();
     if config.oracle_canister_id != Principal::anonymous() {
         start_timer_internal();
@@ -254,7 +261,7 @@ async fn fetch_pyth_price(config: &FeederConfig, feed: &PythFeed) -> Result<(f64
     let sources = RpcSources::Default(SolanaCluster::Mainnet);
     let rpc_config: Option<()> = None;
 
-    let cycles = 100_000_000_000u128;
+    let cycles = 3_000_000_000u128;
 
     let call_result: Result<(MultiGetAccountInfoResult,), _> = ic_cdk::api::call::call_with_payment128(
         config.sol_rpc_canister_id,
@@ -360,8 +367,8 @@ async fn push_to_oracle(config: &FeederConfig, updates: Vec<OraclePriceUpdate>) 
 #[update]
 fn add_pyth_feed(symbol: String, account: String, enabled: bool) {
     let caller = ic_cdk::caller();
-    if caller == Principal::anonymous() {
-        ic_cdk::trap("Anonymous principal cannot add feeds");
+    if !is_manager(&caller) {
+        ic_cdk::trap("Only manager can add feeds");
     }
 
     let feed = PythFeed {
@@ -379,8 +386,8 @@ fn add_pyth_feed(symbol: String, account: String, enabled: bool) {
 #[update]
 fn remove_pyth_feed(symbol: String) -> bool {
     let caller = ic_cdk::caller();
-    if caller == Principal::anonymous() {
-        ic_cdk::trap("Anonymous principal cannot remove feeds");
+    if !is_manager(&caller) {
+        ic_cdk::trap("Only manager can remove feeds");
     }
 
     let result = remove_feed(&symbol).is_some();
@@ -394,8 +401,8 @@ fn remove_pyth_feed(symbol: String) -> bool {
 #[update]
 fn toggle_feed(symbol: String, enabled: bool) -> bool {
     let caller = ic_cdk::caller();
-    if caller == Principal::anonymous() {
-        ic_cdk::trap("Anonymous principal cannot toggle feeds");
+    if !is_manager(&caller) {
+        ic_cdk::trap("Only manager can toggle feeds");
     }
 
     if let Some(mut feed) = get_feed(&symbol) {
@@ -434,11 +441,25 @@ fn get_feeder_config() -> FeederConfig {
 #[update]
 fn set_feeder_config(config: FeederConfig) {
     let caller = ic_cdk::caller();
-    if caller == Principal::anonymous() {
-        ic_cdk::trap("Anonymous principal cannot set config");
+    if !is_manager(&caller) {
+        ic_cdk::trap("Only manager can set config");
     }
 
     set_config(config);
+}
+
+#[query]
+fn get_manager() -> Principal {
+    crate::state::get_manager()
+}
+
+#[update]
+fn set_manager(new_manager: Principal) {
+    let caller = ic_cdk::caller();
+    if !is_manager(&caller) {
+        ic_cdk::trap("Only manager can update manager");
+    }
+    crate::state::set_manager(new_manager);
 }
 
 #[update]
