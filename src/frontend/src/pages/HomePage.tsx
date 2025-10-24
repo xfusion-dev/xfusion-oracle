@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useOracleMetrics } from '../hooks/useOracleData';
 import { Suspense, lazy } from 'react';
 
@@ -67,12 +68,16 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <button className="bg-primary hover:bg-primary-600 text-white px-10 py-4 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 hover:translate-y-[-2px]">
-              Explore Feeds
-            </button>
-            <button className="bg-white hover:bg-gray-100 text-black px-10 py-4 font-medium transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px]">
-              View Documentation
-            </button>
+            <Link to="/assets"> 
+              <button className="bg-primary hover:bg-primary-600 text-white px-10 py-4 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 hover:translate-y-[-2px]">
+                Explore Feeds
+              </button>
+            </Link>
+            <Link to="https://docs.xfusion.finance/oracle/getting-started" target="_blank" rel="noopener noreferrer">
+              <button className="bg-white hover:bg-gray-100 text-black px-10 py-4 font-medium transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px]">
+                View Documentation
+              </button>
+            </Link>
           </div>
         </div>
       </section>
