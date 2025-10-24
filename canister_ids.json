@@ -1,9 +1,11 @@
 {
+  "frontend": {
+    "ic": "z5qos-7yaaa-aaaao-a4pva-cai"
+  },
   "oracle": {
     "ic": "zutfo-jqaaa-aaaao-a4puq-cai"
   },
-  "frontend": {
-    "ic": "z5qos-7yaaa-aaaao-a4pva-cai"
+  "pyth_feeder": {
+    "ic": "64ao5-byaaa-aaaao-a4qaq-cai"
   }
 }
-

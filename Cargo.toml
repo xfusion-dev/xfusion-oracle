@@ -1,20 +1,6 @@
-[package]
-name = "xfusion-oracle-canister"
-version = "0.1.0"
-edition = "2021"
-
-[lib]
-crate-type = ["cdylib"]
-path = "src/backend/lib.rs"
-
-[dependencies]
-candid = "0.10"
-ic-cdk = "0.13"
-ic-cdk-macros = "0.13"
-ic-stable-structures = "0.6"
-serde = { version = "1.0", features = ["derive"] }
-serde_bytes = "0.11"
-sha2 = "0.10"
-
-[dev-dependencies]
-ic-cdk-macros = "0.13"
+[workspace]
+members = [
+    "src/backend",
+    "src/pyth_feeder"
+]
+resolver = "2"

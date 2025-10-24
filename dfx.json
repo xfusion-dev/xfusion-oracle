@@ -5,6 +5,11 @@
       "package": "xfusion-oracle-canister",
       "candid": "src/backend/oracle.did"
     },
+    "pyth_feeder": {
+      "type": "rust",
+      "package": "pyth-feeder-canister",
+      "candid": "src/pyth_feeder/pyth_feeder.did"
+    },
     "frontend": {
       "type": "assets",
       "source": ["src/frontend/dist/"]
