@@ -1,0 +1,52 @@
+type InitArgs = record {
+  oracle_canister_id : opt principal;
+  sol_rpc_canister_id : principal;
+  update_interval_secs : opt nat64;
+};
+
+type PythFeed = record {
+  symbol : text;
+  account : text;
+  enabled : bool;
+};
+
+type FeedUpdateResult = record {
+  symbol : text;
+  success : bool;
+  error : opt text;
+  price : opt float64;
+  confidence : opt float64;
+};
+
+type FeederMetrics = record {
+  total_updates : nat64;
+  successful_updates : nat64;
+  failed_updates : nat64;
+  last_update_time : nat64;
+  active_feeds : nat32;
+  timer_running : bool;
+};
+
+type FeederConfig = record {
+  oracle_canister_id : principal;
+  sol_rpc_canister_id : principal;
+  update_interval_secs : nat64;
+};
+
+service : (InitArgs) -> {
+  start_timer : () -> ();
+  stop_timer : () -> ();
+
+  add_pyth_feed : (text, text, bool) -> ();
+  remove_pyth_feed : (text) -> (bool);
+  toggle_feed : (text, bool) -> (bool);
+
+  get_pyth_feeds : () -> (vec PythFeed) query;
+  get_pyth_feed : (text) -> (opt PythFeed) query;
+
+  get_feeder_metrics : () -> (FeederMetrics) query;
+  get_feeder_config : () -> (FeederConfig) query;
+  set_feeder_config : (FeederConfig) -> ();
+
+  manual_fetch : () -> (vec FeedUpdateResult);
+}
