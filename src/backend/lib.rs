@@ -57,6 +57,56 @@ fn get_price_history(symbol: Symbol) -> Vec<Price> {
 }
 
 #[query]
+fn get_price_history_days(symbol: Symbol, days: u8) -> Vec<Price> {
+    with_storage(|storage| {
+        let all_history = storage.get_history(&symbol);
+        if days == 0 {
+            return all_history;
+        }
+
+        let current_time = ic_cdk::api::time();
+        let days_in_nanos = (days as u64) * 86400 * 1_000_000_000;
+        let cutoff_time = current_time.saturating_sub(days_in_nanos);
+
+        all_history.into_iter()
+            .filter(|price| price.timestamp >= cutoff_time)
+            .collect()
+    })
+}
+
+#[query]
+fn get_batch_price_history(symbols: Vec<Symbol>, days: u8) -> Vec<Vec<Price>> {
+    if symbols.len() > 100 {
+        ic_cdk::trap("Too many symbols (max: 100)");
+    }
+
+    with_storage(|storage| {
+        let current_time = ic_cdk::api::time();
+        let days_in_nanos = if days > 0 {
+            (days as u64) * 86400 * 1_000_000_000
+        } else {
+            0
+        };
+        let cutoff_time = if days > 0 {
+            current_time.saturating_sub(days_in_nanos)
+        } else {
+            0
+        };
+
+        symbols.iter().map(|symbol| {
+            let all_history = storage.get_history(symbol);
+            if days == 0 {
+                all_history
+            } else {
+                all_history.into_iter()
+                    .filter(|price| price.timestamp >= cutoff_time)
+                    .collect()
+            }
+        }).collect()
+    })
+}
+
+#[query]
 fn get_price_history_count(symbol: Symbol) -> u64 {
     with_storage(|storage| {
         storage.get_history_count(&symbol) as u64
